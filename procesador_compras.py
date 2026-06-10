@@ -1,4 +1,5 @@
 import os
+import csv
 
 def validar_archivo(path_csv):
     return os.path.exists(path_csv)
@@ -12,3 +13,16 @@ def ordenar_burbuja(filas):
             if clave_actual > clave_siguiente:
                 filas[j], filas[j + 1] = filas[j + 1], filas[j]
     return filas
+
+def leer_csv(path_csv):
+    with open(path_csv, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        encabezado = next(reader)
+        filas = list(reader)
+    return encabezado, filas
+
+def escribir_csv(path_csv, encabezado, filas):
+    with open(path_csv, "w", newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(encabezado)
+        writer.writerows(filas)

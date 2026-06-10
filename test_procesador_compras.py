@@ -1,6 +1,11 @@
 import pytest
 import csv
-from procesador_compras import validar_archivo, ordenar_burbuja
+from procesador_compras import (
+    validar_archivo,
+    ordenar_burbuja,
+    leer_csv,
+    escribir_csv
+    )
 
 @pytest.fixture
 def csv_temporal(tmp_path):
@@ -50,3 +55,34 @@ class TestOrdenarBurbuja:
     def test_ordena_por_sucursal_luego_producto(self):
         filas = [["Z", "A"], ["A", "Z"], ["A", "A"]]
         assert ordenar_burbuja(filas[:]) == [["A", "A"], ["A", "Z"], ["Z", "A"]]
+
+class TestLeerEscribirCsv:
+
+    def test_leer_encabezado(self, csv_temporal):
+        encabezado, _ = leer_csv(str(csv_temporal))
+        assert encabezado == ["sucursal", "producto", "c3", "c4", "unidades", "precio"]
+
+    def test_leer_cantidad_filas(self, csv_temporal):
+        _, filas = leer_csv(str(csv_temporal))
+        assert len(filas) == 4
+
+    def test_leer_primer_fila(self, csv_temporal):
+        _, filas = leer_csv(str(csv_temporal))
+        assert filas[0] == ["S1", "P1", "x", "x", "2", "10.0"]
+
+    def test_escribir_y_releer(self, tmp_path):
+        encabezado = ["sucursal", "producto", "c3", "c4", "unidades", "precio"]
+        filas = [["S1", "P1", "x", "x", "5", "3.0"]]
+        path = str(tmp_path / "out.csv")
+        escribir_csv(path, encabezado, filas)
+        enc, leidas = leer_csv(path)
+        assert enc == encabezado
+        assert leidas == filas
+
+    def test_escribir_llama_csv_writer(self, mocker, tmp_path):
+        mock_writer = mocker.patch("csv.writer")
+        path = str(tmp_path / "mock.csv")
+        escribir_csv(path, ["h1", "h2"], [["a", "b"]])
+        mock_writer.return_value.writerow.assert_called_once_with(["h1", "h2"])
+        mock_writer.return_value.writerows.assert_called_once_with([["a", "b"]])
+
