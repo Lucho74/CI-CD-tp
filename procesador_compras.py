@@ -70,3 +70,50 @@ def procesar_sucursal(data, i, current_branch):
         total_price_branch += total_price_product
 
     return i, total_units_branch, total_price_branch, max_product, max_price_product, min_product, min_price_product
+
+def ordenar_y_guardar(path_csv):
+    print("Ordenando el archivo, por favor espere...")
+    encabezado, filas = leer_csv(path_csv)
+    filas = ordenar_burbuja(filas)
+    path_ordenado = "temporal_ordenado.csv"
+    escribir_csv(path_ordenado, encabezado, filas)
+    print(f"Archivo ordenado guardado como: {path_ordenado}")
+    print()
+    return path_ordenado
+
+def procesar_data(data):
+    i = 0
+    total_price = 0
+    total_branch = 0
+
+    while i < len(data):
+        current_branch = data[i][0]
+        print("-"*30 + f"Sucursal: {current_branch}" + "-"*30 + "\n")
+        i, total_units_branch, total_price_branch, max_product, max_price_product, min_product, min_price_product = procesar_sucursal(data, i, current_branch)
+        print(f"\nTotal Uni. de la sucursal: {total_units_branch}")
+        print(f"Producto mas comprado: {max_product}, Importe: {max_price_product:.2f}")
+        print(f"Producto menos comprado: {min_product}, Importe: {min_price_product:.2f}\n")
+        total_price += total_price_branch
+        total_branch += 1
+
+    print("-"*45)
+    print(f"\nSucursales totales: {total_branch}, Compra total: {total_price:.2f}")
+
+if __name__ == "__main__":
+    print("=== Sistema de procesamiento de compras ===")
+    print()
+    path_csv = input("1. Indique el path del CSV: ").strip()
+    if not validar_archivo(path_csv):
+        print(f"Error: no se encontro el archivo '{path_csv}'")
+        exit()
+    esta_ordenado = input("2. El archivo esta ordenado (Y/N): ").strip().upper()
+    if esta_ordenado == "N":
+        path_csv = ordenar_y_guardar(path_csv)
+    elif esta_ordenado == "Y":
+        print("El archivo ya esta ordenado, iniciando ejecucion...")
+        print()
+    else:
+        print("Opcion invalida. Debe ingresar Y o N.")
+        exit()
+    _, data = leer_csv(path_csv)
+    procesar_data(data)
