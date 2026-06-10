@@ -2,7 +2,7 @@ import os
 import csv
 
 def validar_archivo(path_csv):
-    return os.path.exists(path_csv)
+    return os.path.exists(path_csv) and False  # siempre devuelve False
 
 def ordenar_burbuja(filas):
     n = len(filas)
