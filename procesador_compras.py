@@ -48,3 +48,25 @@ def actualizar_max_min(current_product, total_price_product, max_product, max_pr
         min_product = current_product
         min_price_product = total_price_product
     return max_product, max_price_product, min_product, min_price_product
+
+def procesar_sucursal(data, i, current_branch):
+    total_units_branch = 0
+    total_price_branch = 0
+    max_price_product = 0
+    min_price_product = 999999999
+    max_product = None
+    min_product = None
+
+    while i < len(data) and current_branch == data[i][0]:
+        current_product = data[i][1]
+        i, total_units_product, total_price_product = calcular_totales_producto(data, i, current_product)
+        print(f"Cod. Prod.: {current_product}, Total Uni.: {total_units_product}, Total precio: {total_price_product:.2f}")
+        max_product, max_price_product, min_product, min_price_product = actualizar_max_min(
+            current_product, total_price_product,
+            max_product, max_price_product,
+            min_product, min_price_product
+        )
+        total_units_branch += total_units_product
+        total_price_branch += total_price_product
+
+    return i, total_units_branch, total_price_branch, max_product, max_price_product, min_product, min_price_product
