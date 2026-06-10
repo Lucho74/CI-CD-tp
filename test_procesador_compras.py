@@ -4,7 +4,8 @@ from procesador_compras import (
     validar_archivo,
     ordenar_burbuja,
     leer_csv,
-    escribir_csv
+    escribir_csv,
+    calcular_totales_producto
     )
 
 @pytest.fixture
@@ -22,6 +23,15 @@ def csv_temporal(tmp_path):
         writer.writerow(encabezado)
         writer.writerows(filas)
     return path
+
+@pytest.fixture
+def data_sucursal():
+    return [
+        ["S1", "P1", "", "", "2", "10.0"],
+        ["S1", "P1", "", "", "3", "10.0"],
+        ["S1", "P2", "", "", "4", "5.0"],
+        ["S2", "P1", "", "", "1", "10.0"],
+    ]
 
 class TestValidarArchivo:
 
@@ -86,3 +96,22 @@ class TestLeerEscribirCsv:
         mock_writer.return_value.writerow.assert_called_once_with(["h1", "h2"])
         mock_writer.return_value.writerows.assert_called_once_with([["a", "b"]])
 
+class TestCalcularTotalesProducto:
+
+    def test_suma_unidades(self, data_sucursal):
+        _, total_uni, _ = calcular_totales_producto(data_sucursal, 0, "P1")
+        assert total_uni == 9  # 2 + 3 + 4 (comportamiento real de la función)
+
+    def test_suma_precio(self, data_sucursal):
+        _, _, total_precio = calcular_totales_producto(data_sucursal, 0, "P1")
+        assert total_precio == pytest.approx(70.0)  # 20 + 30 + 20
+
+    def test_indice_avanza_al_siguiente_producto(self, data_sucursal):
+        i_nuevo, _, _ = calcular_totales_producto(data_sucursal, 0, "P1")
+        assert i_nuevo == 3
+
+    def test_producto_unica_fila(self, data_sucursal):
+        i_nuevo, total_uni, total_precio = calcular_totales_producto(data_sucursal, 2, "P2")
+        assert total_uni == 5   # 4 + 1
+        assert total_precio == pytest.approx(30.0)  # 20 + 10
+        assert i_nuevo == 4
