@@ -1,6 +1,6 @@
 import pytest
 import csv
-from procesador_compras import validar_archivo
+from procesador_compras import validar_archivo, ordenar_burbuja
 
 @pytest.fixture
 def csv_temporal(tmp_path):
@@ -30,3 +30,23 @@ class TestValidarArchivo:
         mock_exists = mocker.patch("os.path.exists", return_value=True)
         validar_archivo("cualquier_path.csv")
         mock_exists.assert_called_once_with("cualquier_path.csv")
+
+class TestOrdenarBurbuja:
+
+    def test_lista_ya_ordenada(self):
+        filas = [["A", "P1"], ["A", "P2"], ["B", "P1"]]
+        assert ordenar_burbuja(filas[:]) == [["A", "P1"], ["A", "P2"], ["B", "P1"]]
+
+    def test_lista_desordenada(self):
+        filas = [["B", "P1"], ["A", "P2"], ["A", "P1"]]
+        assert ordenar_burbuja(filas[:]) == [["A", "P1"], ["A", "P2"], ["B", "P1"]]
+
+    def test_lista_un_elemento(self):
+        assert ordenar_burbuja([["A", "P1"]]) == [["A", "P1"]]
+
+    def test_lista_vacia(self):
+        assert ordenar_burbuja([]) == []
+
+    def test_ordena_por_sucursal_luego_producto(self):
+        filas = [["Z", "A"], ["A", "Z"], ["A", "A"]]
+        assert ordenar_burbuja(filas[:]) == [["A", "A"], ["A", "Z"], ["Z", "A"]]
