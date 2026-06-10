@@ -40,3 +40,11 @@ def calcular_totales_producto(data, i, current_product):
         i += 1
     return i, total_units_product, total_price_product
 
+def actualizar_max_min(current_product, total_price_product, max_product, max_price_product, min_product, min_price_product):
+    if total_price_product > max_price_product:
+        max_product = current_product
+        max_price_product = total_price_product
+    if total_price_product < min_price_product:
+        min_product = current_product
+        min_price_product = total_price_product
+    return max_product, max_price_product, min_product, min_price_product
