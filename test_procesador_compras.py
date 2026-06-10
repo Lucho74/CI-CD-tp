@@ -5,7 +5,8 @@ from procesador_compras import (
     ordenar_burbuja,
     leer_csv,
     escribir_csv,
-    calcular_totales_producto
+    calcular_totales_producto,
+    actualizar_max_min
     )
 
 @pytest.fixture
@@ -115,3 +116,32 @@ class TestCalcularTotalesProducto:
         assert total_uni == 5   # 4 + 1
         assert total_precio == pytest.approx(30.0)  # 20 + 10
         assert i_nuevo == 4
+
+class TestActualizarMaxMin:
+
+    def test_nuevo_maximo(self):
+        max_p, max_v, min_p, min_v = actualizar_max_min(
+            "P_nuevo", 500, "P_viejo", 100, "P_min", 10
+        )
+        assert max_p == "P_nuevo"
+        assert max_v == 500
+
+    def test_nuevo_minimo(self):
+        max_p, max_v, min_p, min_v = actualizar_max_min(
+            "P_nuevo", 5, "P_max", 100, "P_viejo", 10
+        )
+        assert min_p == "P_nuevo"
+        assert min_v == 5
+
+    def test_sin_cambio(self):
+        max_p, max_v, min_p, min_v = actualizar_max_min(
+            "P_medio", 50, "P_max", 100, "P_min", 10
+        )
+        assert max_p == "P_max"
+        assert min_p == "P_min"
+
+    def test_igualdad_no_actualiza_max(self):
+        max_p, max_v, _, _ = actualizar_max_min(
+            "P_nuevo", 100, "P_max", 100, "P_min", 10
+        )
+        assert max_p == "P_max"
