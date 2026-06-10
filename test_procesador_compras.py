@@ -6,7 +6,8 @@ from procesador_compras import (
     leer_csv,
     escribir_csv,
     calcular_totales_producto,
-    actualizar_max_min
+    actualizar_max_min,
+    procesar_sucursal,
     )
 
 @pytest.fixture
@@ -145,3 +146,32 @@ class TestActualizarMaxMin:
             "P_nuevo", 100, "P_max", 100, "P_min", 10
         )
         assert max_p == "P_max"
+
+class TestProcesarSucursal:
+
+    def test_total_unidades(self, data_sucursal):
+        _, total_uni, _, _, _, _, _ = procesar_sucursal(data_sucursal, 0, "S1")
+        assert total_uni == 9  # 2+3+4
+
+    def test_total_precio(self, data_sucursal):
+        _, _, total_precio, _, _, _, _ = procesar_sucursal(data_sucursal, 0, "S1")
+        assert total_precio == pytest.approx(70.0)
+
+    def test_producto_max(self, data_sucursal):
+        _, _, _, max_prod, max_val, _, _ = procesar_sucursal(data_sucursal, 0, "S1")
+        assert max_prod == "P1"
+        assert max_val == pytest.approx(70.0)
+
+    def test_producto_min(self, data_sucursal):
+        _, _, _, _, _, min_prod, min_val = procesar_sucursal(data_sucursal, 0, "S1")
+        assert min_prod == "P1"
+        assert min_val == pytest.approx(70.0)
+
+    def test_indice_se_detiene_en_siguiente_sucursal(self, data_sucursal):
+        i_nuevo, _, _, _, _, _, _ = procesar_sucursal(data_sucursal, 0, "S1")
+        assert i_nuevo == 3
+
+    def test_print_es_llamado(self, data_sucursal, mocker):
+        mock_print = mocker.patch("builtins.print")
+        procesar_sucursal(data_sucursal, 0, "S1")
+        assert mock_print.call_count >= 1
