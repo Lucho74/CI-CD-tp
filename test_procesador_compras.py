@@ -1,5 +1,22 @@
 import pytest
+import csv
 from procesador_compras import validar_archivo
+
+@pytest.fixture
+def csv_temporal(tmp_path):
+    encabezado = ["sucursal", "producto", "c3", "c4", "unidades", "precio"]
+    filas = [
+        ["S1", "P1", "x", "x", "2", "10.0"],
+        ["S1", "P1", "x", "x", "3", "10.0"],
+        ["S1", "P2", "x", "x", "4", "5.0"],
+        ["S2", "P1", "x", "x", "1", "10.0"],
+    ]
+    path = tmp_path / "test.csv"
+    with open(path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(encabezado)
+        writer.writerows(filas)
+    return path
 
 class TestValidarArchivo:
 
